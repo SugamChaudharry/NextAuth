@@ -1,22 +1,34 @@
 import User from '@/models/userModel';
-import { verify } from 'crypto';
 import nodemailer from 'nodemailer';
 import bcryptjs from 'bcryptjs';
 
-interface SendEmailProps {
-    email: string;
-    emailType: string;
-    userId: string;
-}
 
-export const sendEmail = async ({ email, emailType, userId }:SendEmailProps) => {
+export const sendEmail = async ({ email, emailType, userId }:any) => {
     try {
         const hashedToken = await bcryptjs.hash(userId.toString(), 10)
+        console.log("emailType",emailType , typeof emailType);
+        console.log("hashedToken",hashedToken);
+        console.log("userId",userId);
+        
 
         if(emailType === "VERIFY"){
-          await User.findByIdAndUpdate(userId, {verifyToken: hashedToken, verifiTokenExpire: Date.now() + 3600000});
+          console.log("VVVVVVVVVVVVVVVVVVV");
+          const a = await User.findByIdAndUpdate(userId, {
+            $set: {
+              verifyToken: hashedToken, 
+              verifyTokenExpire: Date.now() + 3600000
+            },
+            
+          });
+          console.log("a",a)
+          
         } else if (emailType === "RESET"){
-          await User.findByIdAndUpdate(userId, {forgotPasswordToken: hashedToken, forgotPasswordExpire: Date.now() + 3600000});
+          await User.findByIdAndUpdate(userId,{
+            $set: {
+              forgotPasswordToken: hashedToken,
+              forgotPasswordExpire: Date.now() + 3600000
+            }
+          });
         }
 
         let transport = nodemailer.createTransport({
@@ -42,6 +54,7 @@ export const sendEmail = async ({ email, emailType, userId }:SendEmailProps) => 
                   </p>`
           }
         const mailResponse = await transport.sendMail(mailOptions);
+        return mailResponse;
         
     } catch (error: any) {
         throw new Error(error.message);

@@ -26,10 +26,10 @@ const userSchema = new mongoose.Schema({
     },
     forgotPasswordToken: String,
     forgotPasswordExpire: Date,
-    verifiToken: String,
-    verifiTokenExpire: Date
+    verifyToken: String,
+    verifyTokenExpire: Date
 })
 
-const User = mongoose.model.users || mongoose.model('users', userSchema);
+const User = mongoose.models.users || mongoose.model('users', userSchema);
 
 export default User;
